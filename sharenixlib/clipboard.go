@@ -25,6 +25,10 @@ import (
 	"github.com/mattn/go-gtk/gdk"
 	"github.com/mattn/go-gtk/gtk"
 	"unsafe"
+	"os/exec"
+	"os"
+	"strings"
+	"fmt"
 )
 
 // GetClipboard returns the default display's GTK clipboard
@@ -39,6 +43,12 @@ func GetClipboard() *gtk.Clipboard {
 // and it is not guaranteed to persist on all window managers once the program
 // terminates.
 func SetClipboardText(text string) {
+	if os.Getenv("WAYLAND_DISPLAY") != "" {
+	   cmd := exec.Command("wl-copy")
+	   cmd.Stdin = strings.NewReader(text)
+	   cmd.Run()
+	   return
+	}
 	display := gdk.DisplayGetDefault()
 	pri := gtk.NewClipboardGetForDisplay(display, gdk.SELECTION_PRIMARY)
 
